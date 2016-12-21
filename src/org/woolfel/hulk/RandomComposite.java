@@ -55,6 +55,18 @@ public class RandomComposite implements Composite {
 			// the starting x,y
 			int cropX = x - random.nextInt(this.imageWidth/3);
 			int cropY = y - random.nextInt(this.imageHeight/3);
+			if (cropX < 0) {
+				cropX = 0;
+			}
+			if ((cropX + this.imageWidth) > bg.getWidth()) {
+				cropX = bg.getWidth() - this.imageWidth;
+			}
+			if (cropY < 0) {
+				cropY = 0;
+			}
+			if ((cropY + this.imageHeight) > bg.getHeight()) {
+				cropY = bg.getHeight() - this.imageHeight;
+			}
 			System.out.println("crop X/Y: " + cropX + ", " + cropY);
 			BufferedImage cropped = new BufferedImage(this.imageWidth, this.imageHeight, bg.getType());
 			int[] croppedPixels = bg.getRGB(cropX, cropY, this.imageWidth, this.imageHeight, null, 0, this.imageWidth);

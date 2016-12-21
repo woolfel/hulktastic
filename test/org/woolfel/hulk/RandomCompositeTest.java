@@ -3,8 +3,8 @@ package org.woolfel.hulk;
 import static org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -16,14 +16,14 @@ public class RandomCompositeTest {
 	@Test
 	public void test() {
 		String output = "./data/result/newimage.jpg";
-		ForegroundSource fg = new SingleFGSource("./data/foreground/robot_front.png");
+		ForegroundSource fg = new SingleFGSource("./data/foreground/robot_back.png");
 		BackgroundSource bg = new FolderBGSource("./data/background");
 		RandomComposite composite = new RandomComposite();
 		composite.setFinalDimensions(320, 240);
 		composite.setMargins(10, 10, 10, 10);
 		BufferedImage newimg = composite.composite(fg, bg);
 		try {
-			ImageIO.write(newimg, "jpg", new FileOutputStream(output));
+			ImageIO.write(newimg, "jpg", new File(output));
 			assertTrue(true);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
