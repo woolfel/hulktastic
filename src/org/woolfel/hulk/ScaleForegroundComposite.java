@@ -24,9 +24,6 @@ public class ScaleForegroundComposite implements Composite {
 	private boolean crop = false;
 	private double scale = 1.0;
 	
-	public ScaleForegroundComposite() {
-	}
-	
 	/**
 	 * Create an instance with a defined amount of scaling of the
 	 * foreground image. If 1.0 is passed, the image will remain
