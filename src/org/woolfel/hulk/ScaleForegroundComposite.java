@@ -1,17 +1,10 @@
 package org.woolfel.hulk;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-/**
- * RandomComposite is a simple class that randomly places a foreground
- * image with Alpha channel over a background. It crops the final image
- * to the desired size.
- * 
- * @author peter lin
- *
- */
-public class RandomComposite implements Composite {
+public class ScaleForegroundComposite implements Composite {
 
 	private int imageWidth = 0;
 	private int imageHeight = 0;
@@ -21,8 +14,20 @@ public class RandomComposite implements Composite {
 	private int rightMargin = 0;
 	private Random random = new Random();
 	private boolean crop = false;
+	private double scale = 1.0;
 	
-	public RandomComposite() {
+	public ScaleForegroundComposite() {
+	}
+	
+	/**
+	 * Create an instance with a defined amount of scaling of the
+	 * foreground image. If 1.0 is passed, the image will remain
+	 * the original size. If 0.80 is passed, the width and height
+	 * will be multiplied by 0.80 to get the new size.
+	 * @param value
+	 */
+	public ScaleForegroundComposite(double value) {
+		this.scale = value;
 	}
 
 	public void setFinalDimensions(int width, int height) {
@@ -44,11 +49,13 @@ public class RandomComposite implements Composite {
 
 	public BufferedImage composite(ForegroundSource foreground, BackgroundSource background) {
 		BufferedImage fg = foreground.getBufferedImage();
+		// scale the foreground image
+		fg = this.scaleForeground(fg, fg.getType());
 		BufferedImage bg = background.getBufferedImage();
 		int x = this.calculateStartX(bg.getWidth() - (fg.getWidth() + this.rightMargin + this.leftMargin));
 		int y = this.calculateStartY(bg.getHeight() - (fg.getHeight() + this.bottomMargin + this.topMargin));
 		
-		//System.out.println("fg start x/y: " + x + ", " + y);
+		System.out.println("fg start x/y: " + x + ", " + y);
 		bg = this.drawForeground(bg, fg, x, y);
 		if (this.crop && backgroundLarger(bg.getWidth(),bg.getHeight())) {
 			// the starting x,y
@@ -66,7 +73,7 @@ public class RandomComposite implements Composite {
 			if ((cropY + this.imageHeight) > bg.getHeight()) {
 				cropY = bg.getHeight() - this.imageHeight;
 			}
-			//System.out.println("crop X/Y: " + cropX + ", " + cropY);
+			System.out.println("crop X/Y: " + cropX + ", " + cropY);
 			BufferedImage cropped = new BufferedImage(this.imageWidth, this.imageHeight, bg.getType());
 			int[] croppedPixels = bg.getRGB(cropX, cropY, this.imageWidth, this.imageHeight, null, 0, this.imageWidth);
 			cropped.setRGB(0, 0, this.imageWidth, this.imageHeight, croppedPixels, 0, this.imageWidth);
@@ -132,5 +139,14 @@ public class RandomComposite implements Composite {
 	 */
 	protected int calculateStartY(int height) {
 		return this.topMargin + random.nextInt(height);
+	}
+	
+	protected BufferedImage scaleForeground(BufferedImage original, int type) {
+		int newWidth = (int)(original.getWidth() * this.scale);
+		int newHeight = (int)(original.getHeight() * this.scale);
+		Image img = original.getScaledInstance(newWidth, newHeight, type);
+		BufferedImage smaller = new BufferedImage(newWidth, newHeight, type);
+		smaller.getGraphics().drawImage(img, 0, 0, null);
+		return smaller;
 	}
 }
