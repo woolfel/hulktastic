@@ -1,14 +1,16 @@
 package org.woolfel.hulk;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
-import javax.imageio.ImageIO;
-
+/**
+ * RandomComposite is a simple class that randomly places a foreground
+ * image with Alpha channel over a background. It crops the final image
+ * to the desired size.
+ * 
+ * @author peter lin
+ *
+ */
 public class RandomComposite implements Composite {
 
 	private int imageWidth = 0;
@@ -49,9 +51,6 @@ public class RandomComposite implements Composite {
 		System.out.println("fg start x/y: " + x + ", " + y);
 		bg = this.drawForeground(bg, fg, x, y);
 		if (this.crop && backgroundLarger(bg.getWidth(),bg.getHeight())) {
-			// crop the image using the center of the foreground
-			int fgXcenter = x + (fg.getWidth()/2);
-			int fgYcenter = y + (fg.getHeight()/2);
 			// the starting x,y
 			int cropX = x - random.nextInt(this.imageWidth/3);
 			int cropY = y - random.nextInt(this.imageHeight/3);
@@ -76,6 +75,19 @@ public class RandomComposite implements Composite {
 		return bg;
 	}
 
+	/**
+	 * Method uses BufferedImage.getRGB() method to get a flattened
+	 * array int[] of all the pixels. The method checks the alpha
+	 * value of each pixel to determine if the pixel should be drawn
+	 * over the background. A value of 255 means the pixel is
+	 * transparent and shouldn't be drawn. A value less than 255
+	 * means it should be drawn.
+	 * @param background
+	 * @param foreground
+	 * @param startx
+	 * @param starty
+	 * @return
+	 */
 	protected BufferedImage drawForeground(BufferedImage background, BufferedImage foreground,
 			int startx, int starty) {
 		BufferedImage fg = foreground;
@@ -100,10 +112,24 @@ public class RandomComposite implements Composite {
 		return bg;
 	}
 	
+	/**
+	 * Dumb simple way of calculating a random starting point for
+	 * the foreground. The X is the upper left corner of where it
+	 * should start drawing
+	 * @param width
+	 * @return
+	 */
 	protected int calculateStartX(int width) {
 		return this.leftMargin + random.nextInt(width);
 	}
 	
+	/**
+	 * Dumb simple way of calculating a random starting point for
+	 * the foreground. The Y is the upper left corner of where it
+	 * should start drawing
+	 * @param height
+	 * @return
+	 */
 	protected int calculateStartY(int height) {
 		return this.topMargin + random.nextInt(height);
 	}
