@@ -4,6 +4,14 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+/**
+ * ScaleForegroundComposite will randomly pick a double between 1.0 and the given
+ * scaling value. The width and height of the foreground is multiplied by the
+ * random value to get the target width and height.
+ * 
+ * @author peter lin
+ *
+ */
 public class ScaleForegroundComposite implements Composite {
 
 	private int imageWidth = 0;
@@ -55,7 +63,7 @@ public class ScaleForegroundComposite implements Composite {
 		int x = this.calculateStartX(bg.getWidth() - (fg.getWidth() + this.rightMargin + this.leftMargin));
 		int y = this.calculateStartY(bg.getHeight() - (fg.getHeight() + this.bottomMargin + this.topMargin));
 		
-		System.out.println("fg start x/y: " + x + ", " + y);
+		//System.out.println("fg start x/y: " + x + ", " + y);
 		bg = this.drawForeground(bg, fg, x, y);
 		if (this.crop && backgroundLarger(bg.getWidth(),bg.getHeight())) {
 			// the starting x,y
@@ -73,7 +81,7 @@ public class ScaleForegroundComposite implements Composite {
 			if ((cropY + this.imageHeight) > bg.getHeight()) {
 				cropY = bg.getHeight() - this.imageHeight;
 			}
-			System.out.println("crop X/Y: " + cropX + ", " + cropY);
+			//System.out.println("crop X/Y: " + cropX + ", " + cropY);
 			BufferedImage cropped = new BufferedImage(this.imageWidth, this.imageHeight, bg.getType());
 			int[] croppedPixels = bg.getRGB(cropX, cropY, this.imageWidth, this.imageHeight, null, 0, this.imageWidth);
 			cropped.setRGB(0, 0, this.imageWidth, this.imageHeight, croppedPixels, 0, this.imageWidth);
@@ -142,11 +150,20 @@ public class ScaleForegroundComposite implements Composite {
 	}
 	
 	protected BufferedImage scaleForeground(BufferedImage original, int type) {
-		int newWidth = (int)(original.getWidth() * this.scale);
-		int newHeight = (int)(original.getHeight() * this.scale);
+		double sc = this.nextDouble();
+		int newWidth = (int)(original.getWidth() * sc);
+		int newHeight = (int)(original.getHeight() * sc);
 		Image img = original.getScaledInstance(newWidth, newHeight, type);
 		BufferedImage smaller = new BufferedImage(newWidth, newHeight, type);
 		smaller.getGraphics().drawImage(img, 0, 0, null);
 		return smaller;
+	}
+	
+	public double nextDouble() {
+		double newdb = this.scale;
+		while ((newdb = random.nextDouble()) < this.scale) {
+		}
+		//System.out.println(newdb);
+		return newdb;
 	}
 }
