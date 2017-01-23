@@ -1,5 +1,6 @@
 package org.woolfel.hulk;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
@@ -21,8 +22,13 @@ public class RandomComposite implements Composite {
 	private int rightMargin = 0;
 	private Random random = new Random();
 	private boolean crop = false;
+	private boolean grayScale = false;
 	
 	public RandomComposite() {
+	}
+	
+	public void setGrayscale(boolean gray) {
+		this.grayScale = gray;
 	}
 
 	public void setFinalDimensions(int width, int height) {
@@ -67,9 +73,16 @@ public class RandomComposite implements Composite {
 				cropY = bg.getHeight() - this.imageHeight;
 			}
 			//System.out.println("crop X/Y: " + cropX + ", " + cropY);
-			BufferedImage cropped = new BufferedImage(this.imageWidth, this.imageHeight, bg.getType());
+			int imageType = bg.getType();
+			if (this.grayScale) {
+				imageType = BufferedImage.TYPE_BYTE_GRAY;
+			}
+			BufferedImage cropped = new BufferedImage(this.imageWidth, this.imageHeight, imageType);
 			int[] croppedPixels = bg.getRGB(cropX, cropY, this.imageWidth, this.imageHeight, null, 0, this.imageWidth);
 			cropped.setRGB(0, 0, this.imageWidth, this.imageHeight, croppedPixels, 0, this.imageWidth);
+			if (this.grayScale) {
+				toGray(cropped);
+			}
 			return cropped;
 		}
 		return bg;
@@ -132,5 +145,21 @@ public class RandomComposite implements Composite {
 	 */
 	protected int calculateStartY(int height) {
 		return this.topMargin + random.nextInt(height);
+	}
+	
+	public void toGray(BufferedImage image) {
+		int width = image.getWidth();
+		int height = image.getHeight();
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				Color c = new Color(image.getRGB(j, i));
+				int red = (int) (c.getRed() * 0.21);
+				int green = (int) (c.getGreen() * 0.72);
+				int blue = (int) (c.getBlue() * 0.07);
+				int sum = red + green + blue;
+				Color newColor = new Color(sum, sum, sum);
+				image.setRGB(j, i, newColor.getRGB());
+			}
+		}
 	}
 }
